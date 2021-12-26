@@ -30,8 +30,6 @@ class MovePC:
 
 
 def main():
-
-
     def create_main_menu():
         menu = 'Main menu:\n' \
                '1 - play\n' \
@@ -51,11 +49,10 @@ def main():
         print('1 - Yes, continue to play')
         print('0 - No, go to main menu')
         symbol = input()
-        while symbol != '0' and symbol != '1':
+        while symbol not in ('1', '0'):
             print('There is no such item on the menu. Re-enter')
             symbol = input()
         return symbol
-
 
     def create_table_menu():
         if not hasattr(TableRules, "help_table"):
@@ -64,7 +61,7 @@ def main():
 
     def create_player_selection():
         symbol = input()
-        while not ((len(symbol) <= count_moves // 10 + 1 and symbol.isdigit()) or symbol == '?'):
+        while not ((symbol in list(map(str, str(list(range(0, len(sys.argv) + 1)))))) or symbol == '?'):
             print('There is no such item on the menu. Re-enter')
             symbol = input()
         return symbol
@@ -77,15 +74,14 @@ def main():
         symbol = create_player_selection()
         output_line = ''
         if symbol == '0':
-            output_line = create_main_menu()
+            output_line = '0'
         elif symbol == '?':
-            output_line = create_table_menu()
+            output_line = '?'
         elif 0 < int(symbol) <= count_moves:
             output_line = f"Your move: {sys.argv[int(symbol) - 1]}\n" \
                           f"Computer move: {sys.argv[move_pc.move - 1]}\n"
             output_line += pick_winner(int(symbol), move_pc.move, table.table_of_moves)
             output_line += ('HMAC Key\n' + move_pc.key)
-            return output_line
         return output_line
 
     def pick_winner(move_player, move_pc, table_of_moves):
@@ -114,26 +110,31 @@ def main():
               "It isn`t right:\nrock rock paper")
         return
 
-
     table = TableRules(count_moves)
     print(create_main_menu())
-    symbol = create_player_selection()
     print("Enter the number in the menu to go, or\nthe rank '?' to bring up the help table")
-
-    while symbol != '0':
-        if symbol == '1':
-            print(play())
-            print("Do you want to repeat?")
-            symbol = create_menu_choice()
-        elif symbol == '?':
+    move = create_player_selection()
+    while True:
+        if move == '0':
+            return
+        if move == '1':
+            move = play()
+            if move not in ('0', '?'):
+                print(move)
+                move = create_menu_choice()
+        if move == '?':
             print(create_table_menu())
             print("Enter any string to return to main menu")
-            symbol = input()
-            symbol = '0'
-        if symbol == "0":
-            print(create_main_menu())
-            symbol = create_player_selection()
+            input()
+            move = '0'
 
+        if move == "0":
+            print(create_main_menu())
+            print("Enter the number in the menu to go, or\nthe rank '?' to bring up the help table")
+            move = create_player_selection()
+        if move not in ('1', '0', '?'):
+            print('There is no such item on the menu. Re-enter')
+            move = create_player_selection()
 
 
 main()
